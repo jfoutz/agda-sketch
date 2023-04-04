@@ -206,4 +206,4 @@ page 24 - refl!
 
 also the cool _<_>_ which uses trasitive equality.
 
-... so let's try this again. nat2.lagda.md
+... so let's go understand that.
