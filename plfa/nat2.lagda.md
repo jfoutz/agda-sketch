@@ -488,7 +488,6 @@ there must be a bunch of absurd cases.
 ex3c : {P : Set} -> (Either P (P -> ⊥) -> ⊥) -> ⊥
 ex3c = \ z -> z (right (\ x -> z (left x)))
 
-
 ex3ch : (Either Nat (Nat -> Nat) -> Nat)
 ex3ch (left n) = n
 ex3ch (right f) = f zero
@@ -596,3 +595,167 @@ trans refl refl = refl
 
 cong : {A B : Set} {x y : A} -> (f : A -> B) -> x ≡ y -> f x ≡ f y
 cong f refl = refl
+
+begin_ : {A : Set} -> {x y : A} -> x ≡ y -> x ≡ y
+begin p = p
+
+_end : {A : Set} -> (x : A) -> x ≡ x
+x end = refl
+
+_=⟨_⟩_ : { A : Set } -> (x : A) -> {y z : A}
+         -> x ≡ y -> y ≡ z -> x ≡ z
+x =⟨ y ⟩ z = trans y z
+
+_=⟨⟩_ : {A : Set} -> (x : A) -> {y : A} -> x ≡ y -> x ≡ y
+x =⟨⟩ y = x =⟨ refl ⟩ y
+
+infix  1 begin_
+infix  3 _end
+infixr 2 _=⟨_⟩_
+infixr 2 _=⟨⟩_
+
+[_]   : {A : Set} -> A -> List A
+[ x ] = x :: []
+
+reverse : {A : Set} -> List A -> List A
+reverse []        = []
+reverse (x :: xs) = reverse xs ++ [ x ]
+
+reverse-singleton : {A : Set} (x : A) -> reverse [ x ] ≡ [ x ]
+reverse-singleton x =
+  begin
+    reverse [ x ]
+  =⟨⟩
+    reverse (x :: [])
+  =⟨⟩
+    reverse [] ++ [ x ]
+  =⟨⟩
+    [] ++ [ x ]
+  =⟨⟩
+    [ x ]
+  end
+
+not-not : (b : Bool) -> not (not b) ≡ b
+not-not false =
+  begin
+    not (not false)
+  =⟨⟩
+    not true
+  =⟨⟩
+    false
+  end
+not-not true =
+  begin
+    not (not true)
+  =⟨⟩
+    not false
+  =⟨⟩
+    true
+  end
+
+add-n-zero : (n : Nat) -> n + zero ≡ n
+add-n-zero zero =
+  begin
+    zero + zero
+  =⟨⟩
+    zero
+  end
+add-n-zero (suc n) =
+  begin
+    (suc n) + zero
+  =⟨⟩
+    suc (n + zero)
+  =⟨ cong suc (add-n-zero n) ⟩
+    suc n
+  end
+
+```
+Exercise 4.1. Prove that m + suc n = suc (m + n) for all natural numbers m and n. Next, use the previous lemma and this one to prove commutativity of addition, i.e. that m + n = n + m for all natural numbers m and n.
+
+
+
+add-m-n : (m n : Nat) -> m + (suc n) ≡ suc (m + n)
+add-m-n zero n =
+  begin
+    zero + (suc n)
+  =⟨⟩
+    zero + (suc (zero + n))
+  =⟨⟩
+    (suc (zero + n))
+  end
+add-m-n m n =
+  begin
+    m + (suc n)
+  =⟨ cong suc ( \ i -> add-m-n i n ) ⟩
+    suc (m + n)
+  _end
+
+
+```
+add-0-n : (n : Nat) -> 0 + (suc n) ≡ suc (0 + n)
+add-0-n n =
+  begin
+    0 + (suc n)
+  =⟨⟩
+    (suc n)
+  =⟨⟩
+    suc (0 + n)
+  end
+
+add-1-n : (n : Nat) -> 1 + (suc n) ≡ suc (1 + n)
+add-1-n n =
+  begin
+    1 + (suc n)
+  =⟨⟩
+    suc (suc n)
+  =⟨⟩
+    suc (1 + n)
+  end
+
+add-2-n : (n : Nat) -> 2 + (suc n) ≡ suc (2 + n)
+add-2-n n =
+  begin
+    2 + (suc n)
+  =⟨⟩
+    (suc (suc (suc n)))
+  =⟨⟩
+    suc (2 + n)
+  end
+
+add-m-n : (m n : Nat) -> m + (suc n) ≡ suc (m + n)
+add-m-n zero n =
+  begin
+    0 + (suc n)
+  =⟨⟩
+    suc n
+  =⟨⟩
+    suc (0 + n)
+  end
+add-m-n (suc m) n =
+  begin
+    (suc m) + (suc n)
+  =⟨ cong suc (add-m-n m n) ⟩
+    suc (suc (m + n))
+  end
+  ```
+  i think maybe i went about this in a really strange way.
+  i think the hint was about operating on n not m.
+  writing down examples was spectacularly helpful.
+
+add-m-n' : (m n : Nat) -> m + (suc n) ≡ suc (m + n)
+add-m-n' m zero =
+  begin
+    m + (suc zero)
+  =⟨⟩
+    m + 1
+  =⟨⟩ --------- this part fails because + reduces it's first argument
+  --------- sorta have to work on the left, not the right.
+    (suc m)
+  =⟨⟩
+    suc (m + zero)
+  end
+
+add-m-n' m (suc n) = ?
+maybe i did do it right
+
+```
