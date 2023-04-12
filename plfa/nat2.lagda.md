@@ -758,4 +758,147 @@ add-m-n' m zero =
 add-m-n' m (suc n) = ?
 maybe i did do it right
 
+add-n-zero : (n : Nat) -> n + zero ≡ n
 ```
+
+comm0+1 : 0 + 1 ≡ 1 + 0
+comm0+1 =
+  begin
+    0 + 1
+  =⟨⟩
+    1
+  =⟨⟩
+    1 + 0
+  end
+
+comm1+2 : 1 + 2 ≡ 2 + 1
+comm1+2 =
+  begin
+    1 + 2
+  =⟨⟩
+    3
+  =⟨⟩
+    2 + 1
+  end
+
+comm+ : (m n : Nat) -> m + n ≡ n + m
+comm+ m zero =
+  begin
+    m + zero
+  =⟨ add-n-zero m ⟩
+    m
+  =⟨⟩
+    zero + m
+  end
+comm+ m (suc n) =
+  begin
+    m + (suc n)
+  =⟨ add-m-n m n ⟩
+    suc (m + n)
+  =⟨ cong suc (comm+ m n) ⟩
+    suc (n + m)
+  =⟨⟩
+    (suc n) + m
+  end
+
+```
+whew. ok.
+two big lessons.
+
+
+  =⟨ you can put functions here⟩
+
+which is super cool
+
+  =⟨ cong f-incr induction ⟩
+
+which is even cooler.
+
+i wonder about the extracted code. i suspect everything before the cong is before  the recursive call, and everything after is on the stack. There's a list example coming up with an accumulator. that'll be interesting.
+
+anywho.
+
+```
+
+add-assoc : (x y z : Nat) -> x + (y + z) ≡ (x + y) + z
+add-assoc zero y z =
+  begin
+    zero + (y + z)
+  =⟨⟩
+    y + z
+  =⟨⟩
+    (zero + y) + z
+  end
+```
+so, this works, and i'm not sure why.
+add-assoc (suc x) y z =
+  begin
+    (suc x) + (y + z)
+  =⟨ cong suc (add-assoc x y z) ⟩
+    ((suc x) + y) + z
+  end
+
+book answer:
+```
+add-assoc (suc x) y z =
+  begin
+    (suc x) + (y + z)
+  =⟨⟩
+    suc (x + (y + z))
+  =⟨ cong suc (add-assoc x y z) ⟩
+    suc ((x + y) + z)
+  =⟨⟩
+    (suc (x + y)) + z
+  =⟨⟩
+    ((suc x) + y) + z
+  end
+
+```
+i think moving suc around might be part of nat search.
+but maybe it's just part of +. who knows.
+
+Exercise4.2. Considerthefollowing function:
+replicate : {A : Set} → Nat → A → List A
+replicate zero x = [] (64) replicate (suc n) x =
+x :: replicate n x
+
+Prove that the length of replicate n x is always equal to n, by induction on the number n.
+```
+
+replicate : { A : Set } -> Nat -> A -> List A
+replicate zero x    = []
+replicate (suc n) x = x :: replicate n x
+
+replicate-n-len : { A : Set } -> (n : Nat) -> (x : A) -> length (replicate n x) ≡ n
+replicate-n-len zero x =
+  begin
+    length (replicate zero x)
+  =⟨⟩
+    length []
+  =⟨⟩
+    zero
+  end
+replicate-n-len (suc n) x =
+  begin
+    length (replicate (suc n) x)
+  =⟨ cong suc (replicate-n-len n x) ⟩
+    (suc n)
+  end
+```
+
+neat.
+
+reverse. where block
+```
+
+reverse-reverse : {A : Set} -> (xs : List A) -> reverse (reverse xs) ≡ xs
+
+reverse-reverse [] =
+  begin
+    reverse (reverse [])
+  =⟨⟩
+    reverse []
+  =⟨⟩
+    []
+  end
+reverse-reverse (x :: xs) = {!!}
