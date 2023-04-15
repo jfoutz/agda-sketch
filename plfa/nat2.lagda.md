@@ -874,8 +874,6 @@ replicate-n-len zero x =
   begin
     length (replicate zero x)
   =⟨⟩
-    length []
-  =⟨⟩
     zero
   end
 replicate-n-len (suc n) x =
@@ -901,4 +899,191 @@ reverse-reverse [] =
   =⟨⟩
     []
   end
-reverse-reverse (x :: xs) = {!!}
+reverse-reverse (x :: xs) =
+  begin
+    (reverse (reverse (x :: xs )))
+  =⟨⟩
+    reverse (reverse xs ++ [ x ])
+  =⟨ reverse-distributivity (reverse xs) [ x ] ⟩
+    reverse [ x ] ++ reverse (reverse xs)
+  =⟨⟩
+    [ x ] ++ reverse (reverse xs)
+  =⟨⟩
+    x :: reverse (reverse xs)
+  =⟨ cong (x ::_) (reverse-reverse xs) ⟩
+    x :: xs
+  end
+  where
+    reverse-distributivity : { A : Set } -> (xs ys : List A)
+                           -> reverse (xs ++ ys) ≡ reverse ys ++ reverse xs
+    reverse-distributivity [] ys =
+      begin
+        reverse ([] ++ ys)
+      =⟨⟩
+        reverse ys
+      =⟨ sym (append-[] (reverse ys)) ⟩
+        reverse ys ++ []
+      =⟨⟩
+        reverse ys ++ reverse []
+      end
+      where
+        append-[] : { A : Set } -> (xs : List A) -> xs ++ [] ≡ xs
+        append-[] [] =
+          begin
+            [] ++ []
+          =⟨⟩
+            []
+          end
+        append-[] (x :: xs) =
+            x :: xs ++ []
+          =⟨ cong (x ::_ ) (append-[] xs ) ⟩
+            x :: xs
+          end
+
+    reverse-distributivity (x :: xs) ys =
+      begin
+        reverse ((x :: xs) ++ ys)
+      =⟨⟩
+        reverse ( x :: (xs ++ ys))
+      =⟨⟩
+        reverse (xs ++ ys) ++ reverse [ x ]
+      =⟨⟩
+        reverse (xs ++ ys) ++ [ x ]
+      =⟨ cong (_++ [ x ]) (reverse-distributivity xs ys)⟩
+        (reverse ys ++ reverse xs) ++ [ x ]
+      =⟨ append-assoc (reverse ys) (reverse xs) [ x ] ⟩
+        reverse ys ++ (reverse xs ++ [ x ])
+      =⟨⟩
+        reverse ys ++ (reverse (x :: xs))
+      end
+
+      where
+        append-assoc : { A : Set } -> (xs ys zs : List A)
+                     -> (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
+        append-assoc [] ys zs =
+          begin
+            ( [] ++ ys ) ++ zs
+          =⟨⟩
+            ys ++ zs
+          =⟨⟩
+            (ys ++ zs)
+          =⟨⟩
+            [] ++ (ys ++ zs)
+          end
+        append-assoc (x :: xs) ys zs =
+          begin
+            (( x :: xs ) ++ ys ) ++ zs
+          =⟨ cong (x ::_ ) (append-assoc xs ys zs) ⟩
+            (x :: xs) ++ (ys ++ zs)
+          end
+
+```
+Exercise 4.3. Fill in the missing proofs of append-[] and append-assoc.
+
+well, done.
+
+```
+
+map-id : { A : Set } (xs : List A) -> map id xs ≡ xs
+map-id [] =
+  begin
+    map id []
+  =⟨⟩
+    []
+  end
+map-id (x :: xs) =
+  begin
+    map id (x :: xs)
+  =⟨⟩
+    id x :: map id xs
+  =⟨⟩
+    x :: map id xs
+  =⟨ cong (x ::_ ) (map-id xs)⟩
+    x :: xs
+  end
+
+```
+cong is mighty.
+```
+
+_∘_ : { A B C : Set } -> (B -> C) -> (A -> B) -> (A -> C)
+g ∘ h = \ x -> g (h x)
+
+map-compose : { A B C : Set } (f : B -> C) (g : A -> B) (xs : List A)
+            -> map ( f ∘ g ) xs ≡ map f (map g xs)
+map-compose f g [] =
+  begin
+    []
+  end
+map-compose f g (x :: xs) =
+  begin
+    map (f ∘ g) (x :: xs)
+  =⟨⟩
+    (f ∘ g) x :: map (f ∘ g) xs
+  =⟨⟩
+    f (g x) :: map (f ∘ g) xs
+  =⟨ cong (f (g x) ::_ ) (map-compose f g xs) ⟩
+    f (g x) :: map f (map g xs)
+  =⟨⟩
+    map f (g x :: map g xs)
+  =⟨⟩
+    map f (map g (x :: xs))
+  end
+
+
+```
+
+Exercise 4.4.
+length (map f xs) is equal to length xs for all xs.
+Exercise 4.5. Define the functions take and drop that respectively return or re- move the first n elements of the list (or all elements if the list is shorter). Prove that for any number n and any list xs, we have take n xs ++ drop n xs = xs
+```
+
+ex4-4 : { A B : Set } ( f : A -> B ) ( xs : List A )
+      -> length (map f xs) ≡ length xs
+ex4-4 f [] =
+  begin
+    length (map f [])
+  end
+
+ex4-4 f (x :: xs) =
+  begin
+    length (map f (x :: xs))
+  =⟨⟩
+    1 + length (map f xs)
+  =⟨ cong (1 +_ ) (ex4-4 f xs) ⟩
+    1 + length xs
+  =⟨⟩
+    length (x :: xs)
+  end
+
+take : {A : Set} (n : Nat) ( xs : List A ) -> List A
+take zero _ = []
+take (suc n) [] = []
+take (suc n) (x :: xs) = x :: (take n xs)
+
+drop : {A : Set} (n : Nat) ( xs : List A ) -> List A
+drop zero xs = xs
+drop (suc n) [] = []
+drop (suc n) (x :: xs) = x :: (drop n xs)
+
+
+
+ex4-5 : {A : Set} ( n : Nat ) ( xs : List A )
+      -> take n xs ++ drop n xs ≡ xs
+ex4-5 zero xs =
+  begin
+    take zero xs ++ drop zero xs
+  =⟨⟩
+    [] ++ drop zero xs
+  =⟨⟩
+    [] ++ xs
+  =⟨⟩
+    xs
+  end
+
+ex4-5 (suc n) (x :: xs) =
+  begin
+    take (suc n) (x :: xs) ++ drop (suc n) (x :: xs)
+  =⟨⟩
+    ?
+  end
