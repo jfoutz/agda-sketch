@@ -8,7 +8,7 @@ i'm leaving things out so i get stuck. and then figure out why i'm stuck.
 anyway.
 
 ```
-module nat2 where
+module cockx where
 
 data Nat : Set where
   zero : Nat
