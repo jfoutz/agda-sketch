@@ -1,0 +1,5 @@
+name: agda-sketch
+include:
+  src
+depend:
+  standard-library

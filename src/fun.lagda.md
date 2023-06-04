@@ -331,8 +331,8 @@ falsestack 0 = (false , false)
 falsestack (suc n) = (falsestack n , falsestack n)
 
 exprtofn : (n : Nat) -> Expr -> (tyn n)
-exprtofn n (v 0) = (false , true)
-exprtofn n (v (suc x)) = (falsestack x , truestack x)
+exprtofn n (v 0) = {!!}
+exprtofn n (v (suc x)) = {!!}
 exprtofn n (e && e₁) = {!!}
 exprtofn n (e || e₁) = {!!}
 exprtofn n (~ e) = {!!}
